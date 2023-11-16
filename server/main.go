@@ -37,7 +37,7 @@ func makeServer(chunkSize int, dataSize int) *dataServer {
 }
 
 // SayHello implements helloworld.GreeterServer
-func (s *dataServer) GiveMeData(req *helloworld.DataRequest, stream pb.DataService_GiveMeDataServer) error {
+func (s *dataServer) GiveMeData(req *pb.DataRequest, stream pb.DataService_GiveMeDataServer) error {
 	log.Printf("Streaming %d bytes of data\n", len(s.data))
 
 	resp := &pb.DataResponse{}
