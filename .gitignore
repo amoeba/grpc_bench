@@ -1,1 +1,2 @@
-proto/*.pb.go
+go/proto/*.pb.go
+tls/*.pem
