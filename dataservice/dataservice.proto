@@ -14,7 +14,7 @@
 
 syntax = "proto3";
 
-option go_package = "github.com/amoeba/go_grcp_bench";
+option go_package = "github.com/amoeba/grpc_go_bench/dataservice";
 
 package grpc_go_bench;
 

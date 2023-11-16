@@ -7,6 +7,8 @@ import (
 	"log"
 	"time"
 
+	pb "github.com/amoeba/grpc_go_bench/dataservice"
+
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 )

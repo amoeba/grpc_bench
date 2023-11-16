@@ -7,6 +7,8 @@ import (
 	"log"
 	"net"
 
+	pb "github.com/amoeba/grpc_go_bench/dataservice"
+
 	"google.golang.org/grpc"
 )
 
