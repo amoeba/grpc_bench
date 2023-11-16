@@ -17,9 +17,11 @@ import (
 )
 
 var (
-	port    = flag.Int("port", 50051, "The server port")
-	useTLS  = flag.Bool("tls", false, "Whether to use TLS or not")
-	useMTLS = flag.Bool("mtls", false, "Whether to use mTLS or not")
+	port      = flag.Int("port", 5000, "The server port")
+	useTLS    = flag.Bool("tls", false, "Whether to use TLS or not")
+	useMTLS   = flag.Bool("mtls", false, "Whether to use mTLS or not")
+	size      = flag.Int("size", 10*1024*1024*1024, "Number of bytes to stream during testing")
+	chunkSize = flag.Int("chunksize", 4*1000*1000, "What size chunks to split the stream into for GRPC")
 )
 
 type dataServer struct {
@@ -28,12 +30,12 @@ type dataServer struct {
 	data      []byte
 }
 
-func makeServer(chunkSize int, dataSize int) *dataServer {
-	log.Printf("makeServer() called, creating %d bytes of test data...\n", dataSize)
-	s := &dataServer{ChunkSize: chunkSize}
+func makeServer() *dataServer {
+	log.Printf("makeServer() called, creating server with %d bytes of random data...\n", *size)
+	s := &dataServer{ChunkSize: *chunkSize}
 
 	// Make/assign our data
-	blob := make([]byte, dataSize)
+	blob := make([]byte, *size)
 	rand.Read(blob)
 	s.data = blob
 
@@ -53,7 +55,6 @@ func (s *dataServer) GiveMeData(req *pb.DataRequest, stream pb.DataService_GiveM
 		} else {
 			resp.Data = s.data[currentByte : currentByte+s.ChunkSize]
 		}
-		log.Printf("Sending %d bytes...\n", len(resp.Data))
 		if err := stream.Send(resp); err != nil {
 			return err
 		}
@@ -71,7 +72,7 @@ func runMainTLS() {
 		log.Fatalf("failed to listen: %v", err)
 	}
 
-	creds, err := credentials.NewServerTLSFromFile("tls/server_cert.pem", "tls/server_key.pem")
+	creds, err := credentials.NewServerTLSFromFile("../tls/server_cert.pem", "../tls/server_key.pem")
 
 	if err != nil {
 		log.Fatalf("failed to create credentials: %v", err)
@@ -79,7 +80,7 @@ func runMainTLS() {
 
 	s := grpc.NewServer(grpc.Creds(creds))
 
-	pb.RegisterDataServiceServer(s, makeServer(4*1000*1000, (1*1024+512)*1024*1024))
+	pb.RegisterDataServiceServer(s, makeServer())
 
 	log.Printf("server listening at %v", lis.Addr())
 
@@ -91,14 +92,14 @@ func runMainTLS() {
 func runMainMTLS() {
 	log.Println("Setting up server in mTLS mode.")
 
-	cert, err := tls.LoadX509KeyPair("tls/server_cert.pem", "tls/server_key.pem")
+	cert, err := tls.LoadX509KeyPair("../tls/server_cert.pem", "../tls/server_key.pem")
 
 	if err != nil {
 		log.Fatalf("failed to load key pair: %s", err)
 	}
 
 	ca := x509.NewCertPool()
-	caFilePath := "tls/client_ca_cert.pem"
+	caFilePath := "../tls/client_ca_cert.pem"
 	caBytes, err := os.ReadFile(caFilePath)
 
 	if err != nil {
@@ -116,7 +117,7 @@ func runMainMTLS() {
 	}
 
 	s := grpc.NewServer(grpc.Creds(credentials.NewTLS(tlsConfig)))
-	pb.RegisterDataServiceServer(s, makeServer(4*1000*1000, (1*1024+512)*1024*1024))
+	pb.RegisterDataServiceServer(s, makeServer())
 
 	lis, err := net.Listen("tcp", fmt.Sprintf(":%d", *port))
 
@@ -145,7 +146,7 @@ func runMain() {
 
 	s := grpc.NewServer()
 
-	pb.RegisterDataServiceServer(s, makeServer(4*1000*1000, (1*1024+512)*1024*1024))
+	pb.RegisterDataServiceServer(s, makeServer())
 
 	log.Printf("server listening at %v", lis.Addr())
 

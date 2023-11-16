@@ -18,7 +18,7 @@ import (
 )
 
 var (
-	addr     = flag.String("addr", "localhost:50051", "the address to connect to")
+	addr     = flag.String("addr", "localhost:5000", "the address to connect to")
 	nSamples = flag.Int("nsamples", 10, "Number of samples to take")
 	useTLS   = flag.Bool("tls", false, "Whether to use TLS or not")
 	useMTLS  = flag.Bool("mtls", false, "Whether to use mTLS or not")
@@ -74,7 +74,7 @@ func doStats(samples []float64) float64 {
 func runMainTLS() {
 	log.Println("Running client in TLS mode.")
 
-	creds, err := credentials.NewClientTLSFromFile("tls/ca_cert.pem", "x.test.example.com")
+	creds, err := credentials.NewClientTLSFromFile("../tls/ca_cert.pem", "x.test.example.com")
 
 	if err != nil {
 		log.Fatalf("failed to load credentials: %v", err)
@@ -105,13 +105,13 @@ func runMainTLS() {
 func runMainMTLS() {
 	log.Println("Running client in mTLS mode.")
 
-	cert, err := tls.LoadX509KeyPair("tls/client_cert.pem", "tls/client_key.pem")
+	cert, err := tls.LoadX509KeyPair("../tls/client_cert.pem", "../tls/client_key.pem")
 	if err != nil {
 		log.Fatalf("failed to load client cert: %v", err)
 	}
 
 	ca := x509.NewCertPool()
-	caFilePath := "tls/ca_cert.pem"
+	caFilePath := "../tls/ca_cert.pem"
 	caBytes, err := os.ReadFile(caFilePath)
 
 	if err != nil {
