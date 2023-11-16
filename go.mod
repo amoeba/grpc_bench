@@ -1,4 +1,4 @@
-module amoeba/grpc_go_bench
+module github.com/amoeba/grpc_go_bench
 
 go 1.19
 
