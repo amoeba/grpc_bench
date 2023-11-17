@@ -1,19 +1,3 @@
-// Licensed to the Apache Software Foundation (ASF) under one
-// or more contributor license agreements.  See the NOTICE file
-// distributed with this work for additional information
-// regarding copyright ownership.  The ASF licenses this file
-// to you under the Apache License, Version 2.0 (the
-// "License"); you may not use this file except in compliance
-// with the License.  You may obtain a copy of the License at
-//
-// http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
-
 package main
 
 import (
@@ -71,18 +55,19 @@ func CreateTable(nrows int64) arrow.Table {
 }
 
 func (f *MyFlightServer) DoGet(ticket *flight.Ticket, fs flight.FlightService_DoGetServer) error {
-	log.Println("DoGet...")
+	log.Println("Serving DoGet...")
 	writer := flight.NewRecordWriter(fs, ipc.WithSchema(f.Table.Schema()))
 
-	reader := array.NewTableReader(f.Table, 1)
-	for {
-		if !reader.Next() {
-			break
-		}
+	// TODO: What do with chunkSize param here
+	// -1 or 0 seemingly isn't good
+	// Something smaller like 1024 is fine
+	reader := array.NewTableReader(f.Table, 0)
+	for reader.Next() {
 		writer.Write(reader.Record())
+		log.Println("Wrote one chunk.")
 	}
 
-	log.Println("...DoGet.")
+	log.Println("...done serving DoGet.")
 
 	return nil
 }
@@ -90,7 +75,8 @@ func (f *MyFlightServer) DoGet(ticket *flight.Ticket, fs flight.FlightService_Do
 func main() {
 	s := grpc.NewServer()
 
-	tbl := CreateTable(1_000_000)
+	// Create a Table for streaming to clients
+	tbl := CreateTable(100_000_000) // 100mil rows
 	defer tbl.Release()
 
 	flightServer := MyFlightServer{Table: tbl}
@@ -112,28 +98,31 @@ func main() {
 
 	fc := flight.NewClientFromConn(conn, nil)
 
-	data, err := fc.DoGet(context.Background(), &flight.Ticket{})
+	log.Println("Client requesting DoGet()...")
+	stream, err := fc.DoGet(context.Background(), &flight.Ticket{})
 
 	if err != nil {
 		log.Fatalf("Error starting DoGet: %s", err)
 	}
 
-	reader, err := flight.NewRecordReader(data)
+	reader, err := flight.NewRecordReader(stream)
 	if err != nil {
 		log.Fatalf("Failed to create new RecordReader: %s", err)
 	}
+	defer reader.Release()
 
 	var numRows int64 = 0
 
-	for {
-		if !reader.Next() {
-			break
-		}
-		rec := reader.Record()
+	for reader.Next() {
+		// TODO: This whole block never gets called
+		log.Println("reader.Next()")
 
-		numRows += rec.NumRows()
-		log.Printf("%d", numRows)
+		chunk := reader.Chunk()
+		numRows += chunk.Data.NumRows()
+		log.Printf("numrows: %d", numRows)
 	}
+
+	log.Println("...client finished requesting DoGet().")
 
 	fmt.Println(reader.Schema())
 	fmt.Printf("Read %d rows\n", numRows)
