@@ -42,6 +42,8 @@ GRPC also isn't just one implementation so a real test would test various implem
 
 #### Go
 
+This tests a GRPC client streaming a single RPC from the server containing a variable-size payload of bytes.
+
 Run the server and client commands in separate terminals. When each server starts up, it will create a `[]byte` (and fill it with random data) so beware of how much memory you want to use.
 
 w/o TLS, 1 GiB test size
