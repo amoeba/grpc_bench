@@ -2,7 +2,7 @@ package main
 
 import (
 	"context"
-	"fmt"
+	"flag"
 	"log"
 	"net"
 
@@ -13,6 +13,11 @@ import (
 	"github.com/apache/arrow/go/v14/arrow/memory"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
+)
+
+var (
+	nrows     = flag.Int64("nrows", 1024, "Number of rows of test data to use")
+	chunkSize = flag.Int64("chunkSize", 1048576, "Chunk size to split test data into")
 )
 
 type MyFlightServer struct {
@@ -55,28 +60,32 @@ func CreateTable(nrows int64) arrow.Table {
 }
 
 func (f *MyFlightServer) DoGet(ticket *flight.Ticket, fs flight.FlightService_DoGetServer) error {
-	log.Println("Serving DoGet...")
+	log.Println("Starting handling DoGet...")
 	writer := flight.NewRecordWriter(fs, ipc.WithSchema(f.Table.Schema()))
 
 	// TODO: What do with chunkSize param here
 	// -1 or 0 seemingly isn't good
 	// Something smaller like 1024 is fine
-	reader := array.NewTableReader(f.Table, 0)
+	reader := array.NewTableReader(f.Table, *chunkSize)
+	nchunks := 0
 	for reader.Next() {
 		writer.Write(reader.Record())
-		log.Println("Wrote one chunk.")
+		nchunks += 1
 	}
 
+	log.Printf("Wrote Table out in %d chunk(s).", nchunks)
 	log.Println("...done serving DoGet.")
 
 	return nil
 }
 
 func main() {
+	flag.Parse()
+
 	s := grpc.NewServer()
 
 	// Create a Table for streaming to clients
-	tbl := CreateTable(100_000_000) // 100mil rows
+	tbl := CreateTable(*nrows) // 100mil rows
 	defer tbl.Release()
 
 	flightServer := MyFlightServer{Table: tbl}
@@ -111,19 +120,15 @@ func main() {
 	}
 	defer reader.Release()
 
+	var numRecords int64 = 0
 	var numRows int64 = 0
 
 	for reader.Next() {
-		// TODO: This whole block never gets called
-		log.Println("reader.Next()")
-
-		chunk := reader.Chunk()
-		numRows += chunk.Data.NumRows()
-		log.Printf("numrows: %d", numRows)
+		record := reader.Record()
+		numRecords += 1
+		numRows += record.NumRows()
 	}
 
 	log.Println("...client finished requesting DoGet().")
-
-	fmt.Println(reader.Schema())
-	fmt.Printf("Read %d rows\n", numRows)
+	log.Printf("Read %d row(s) over %d records(s)\n", numRows, numRecords)
 }
