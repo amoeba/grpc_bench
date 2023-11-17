@@ -123,6 +123,7 @@ func main() {
 	var numRecords int64 = 0
 	var numRows int64 = 0
 
+	// TODO: When chunkSize is 0 or -1, reader.Next() never evaluates to true
 	for reader.Next() {
 		record := reader.Record()
 		numRecords += 1
