@@ -69,7 +69,10 @@ func (f *MyFlightServer) DoGet(ticket *flight.Ticket, fs flight.FlightService_Do
 	reader := array.NewTableReader(f.Table, *chunkSize)
 	nchunks := 0
 	for reader.Next() {
-		writer.Write(reader.Record())
+		err := writer.Write(reader.Record())
+		if err != nil {
+			log.Fatalf("Error writing to recordwriter: %s", err)
+		}
 		nchunks += 1
 	}
 
@@ -128,6 +131,10 @@ func main() {
 		record := reader.Record()
 		numRecords += 1
 		numRows += record.NumRows()
+	}
+
+	if reader.Err() != nil {
+		log.Fatalf("Error while reading from stream: %s", reader.Err())
 	}
 
 	log.Println("...client finished requesting DoGet().")
