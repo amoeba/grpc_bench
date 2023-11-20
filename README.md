@@ -32,15 +32,20 @@ GRPC also isn't just one implementation so a real test would test various implem
     ```sh
     sh scripts/gen_certs.sh
     ```
-- Generate protobuf code, requires protoc and possibly a Golang GRPC package or two
+- Generate protobuf code, requires protoc (`protobuf-compiler`), `protoc-gen-go`, `protoc-gen-go-grpc`
 
     ```
+    # On Debian
+    apt install -y protobuf-compiler protoc-gen-go protoc-gen-go-grpc
+
     sh scripts/gen_proto.sh
     ```
 
 ### Running
 
-#### Go
+#### Go GRPC
+
+This benchmark is located in `./go-grpc`.
 
 This tests a GRPC client streaming a single RPC from the server containing a variable-size payload of bytes.
 
