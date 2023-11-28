@@ -1,12 +1,19 @@
 import asyncio
 import logging
+import io
 
+import numpy as np
 import grpc
+
 import dataservice.dataservice_pb2
 import dataservice.dataservice_pb2_grpc
 
-# todo: figure out the best way to send raw random bytes, this is not it
-payload = bytes(b"123")
+
+def gen_random(length=int) -> np.array:
+    return np.random.randint(0, length, length, dtype=np.dtype(np.int64))
+
+
+payload = gen_random(100)
 
 
 class Greeter(dataservice.dataservice_pb2_grpc.DataServiceServicer):
@@ -14,7 +21,7 @@ class Greeter(dataservice.dataservice_pb2_grpc.DataServiceServicer):
         self, request, context
     ) -> dataservice.dataservice_pb2.DataResponse:
         logging.info("Serving GiveMeData request %s", request)
-        yield dataservice.dataservice_pb2.DataResponse(data=payload)
+        yield dataservice.dataservice_pb2.DataResponse(data=payload.tobytes())
 
 
 async def serve() -> None:
