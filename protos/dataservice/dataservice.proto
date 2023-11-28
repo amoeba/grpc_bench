@@ -14,9 +14,9 @@
 
 syntax = "proto3";
 
-option go_package = "github.com/amoeba/grpc_go_bench/dataservice";
+option go_package = "github.com/amoeba/grpc_bench/dataservice";
 
-package grpc_go_bench;
+package grpc_bench;
 
 // The greeting service definition.
 service DataService {
