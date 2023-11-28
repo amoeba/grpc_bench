@@ -18,18 +18,14 @@ option go_package = "github.com/amoeba/grpc_bench/dataservice";
 
 package grpc_bench;
 
-// The greeting service definition.
 service DataService {
   // Sends a greeting
   rpc GiveMeData (DataRequest) returns (stream DataResponse) {}
 }
 
-// The request message containing the user's name.
 message DataRequest {
-  bytes data = 1;
 }
 
-// The response message containing the greetings
 message DataResponse {
   bytes data = 1;
 }

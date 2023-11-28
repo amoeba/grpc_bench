@@ -5,13 +5,14 @@ import grpc
 import dataservice.dataservice_pb2
 import dataservice.dataservice_pb2_grpc
 
+# todo: figure out the best way to send raw random bytes, this is not it
+payload = bytes(b"123")
 
-class Greeter(dataservice.dataservice_pb2_grpc.GreeterServicer):
-    # todo: figure out the best way to send raw random bytes, this is not it
-    data = bytes(b"123")
 
+class Greeter(dataservice.dataservice_pb2_grpc.DataServiceServicer):
     def GiveMeData(self, request, context):
-        return dataservice.dataservice_pb2.HelloReply(data=bytes)
+        print("GiveMeData is running")
+        return dataservice.dataservice_pb2.HelloReply(data=payload)
 
 
 def serve():
