@@ -1,4 +1,4 @@
-# grpc_go_bench
+# grpc_bench
 
 Runnable tests of GRPC single stream throughput performance.
 
@@ -42,6 +42,10 @@ GRPC also isn't just one implementation so a real test would test various implem
     ```
 
 ### Running
+
+#### Python GRPC
+
+TODO
 
 #### Go GRPC
 
