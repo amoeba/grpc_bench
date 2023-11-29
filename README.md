@@ -18,6 +18,9 @@ GRPC also isn't just one implementation so a real test would test various implem
 ## Implementations
 
 - [ ] Python (wraps C++)
+  - [x] No TLS
+  - [] TLS
+  - [] mTLS
 - [x] Go
     - [x] No TLS
     - [x] TLS
@@ -45,7 +48,15 @@ GRPC also isn't just one implementation so a real test would test various implem
 
 #### Python GRPC
 
-TODO
+1. cd into `./python`
+2. Create a virtualenv: `python -m venv .venv` an activate it
+3. Install dependencies: `python -m pip install -r requirements.txt`
+
+
+w/o TLS, 1GiB test size
+
+- `python server --port 5000 --size 1073741824`
+- `python client.py --address localhost:5000`
 
 #### Go GRPC
 
@@ -72,16 +83,18 @@ w/ mTLS, 1 GiB test size
 
 ### Results
 
-Tests were run over localhost, and each RPC was run ten times and average throughput was calculated from that, chunk size was 4MB. Warmup would help the throughput numbers a bit.
+Tests were run with the followingn settings:
 
-| Stream Size | Throughput (GiB/s) | Config  |
-|-------------|--------------------|---------|
-| 512 MiB     | 3.4                | w/o TLS |
-| 512 MiB     | 1.7                | TLS     |
-| 512 MiB     | 1.6                | mTLS    |
-| 1 GiB       | 3.0                | w/o TLS |
-| 1 GiB       | 1.7                | TLS     |
-| 1 GiB       | 1.7                | mTLS    |
-| 10 GiB      | 2.7                | w/o TLS |
-| 10 GiB      | 1.6                | TLS     |
-| 10 GiB      | 1.5                | mTLS    |
+- Client and server both connecting over localhost
+- GRPC's chunk size was left near its default of 4 MiB for all tests
+- Throughput was calculated as the average of 10 RPCs
+
+
+| Implementation | No TLS    | TLS       | mTLS       | Payload Size |
+|----------------|-----------|-----------|------------|--------------|
+| Go             | 3.4 GiB/s | 1.7 GiB/s | 1.6  GiB/s | 512 MiB      |
+| Go             | 3.0 GiB/s | 1.7 GiB/s | 1.7  GiB/s | 1 GiB        |
+| Go             | 2.7 GiB/s | 1.6 GiB/s | 1.5  GiB/s | 10 GiB       |
+| Python         | 1.4 GiB/s | x         | x          | 512 MiB      |
+| Python         | 1.4 GiB/s | x         | x          | 1 GiB        |
+| Python         | 1.3       | x         | x          | 10 GiB       |
