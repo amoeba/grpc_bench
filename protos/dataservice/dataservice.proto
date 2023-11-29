@@ -19,7 +19,6 @@ option go_package = "github.com/amoeba/grpc_bench/dataservice";
 package grpc_bench;
 
 service DataService {
-  // Sends a greeting
   rpc GiveMeData (DataRequest) returns (stream DataResponse) {}
 }
 
