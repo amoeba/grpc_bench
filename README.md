@@ -19,7 +19,21 @@ service DataService {
 }
 ```
 
-For each implementation, before the server starts accepting requests, it pre-allocates a single data structure containing a bytes-like object full of random 64-bit integers. When the client executes the single streaming RPC, it reads from the stream, discarding the result, until the stream is exhausted.
+### Payload
+
+For each implementation, before the server starts accepting requests, it pre-allocates a single data structure containing a bytes-like object full of data.
+In each language, this roughly looks like:
+
+```python
+payload = np.random.randint(0, length, length, dtype=np.dtype(np.int64)).tobytes()
+```
+
+```go
+payload := make([]byte, length)
+rand.Read(payload)
+```
+
+When the client executes the single streaming RPC, it reads from the stream, discarding the result, until the stream is exhausted.
 
 Under each implementation, payload sizes of 512 MiB, 1 GiB, and 10 GiB were tested tested and the tests were run with TLS disabled, client-only TLS, and mutual TLS (mTLS). For each combination of payload size and TLS configuration, the average of ten runs were taken to calculate average throughput.
 
