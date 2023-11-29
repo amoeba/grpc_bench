@@ -2,18 +2,26 @@
 
 Runnable tests of GRPC single stream throughput performance.
 
-The basic questions the lead to this repo are:
+## Background
 
-1. What's GRPC's actual single-stream maximum throughput for large (GiB+) messages?
-2. What settings might impact that throughput?
-
-    For example:
-
-    - GRPC message size limits (i.e. you can try to send a large message but GRPC will error unless you chunk the message)
-    - Use of TLS, mTLS, and any related settings. Does TLS have an impact?
+The basic question that lead to this repo was: How fast can GRPC send data and does TLS have an impact?
 
 GRPC was designed for sending lots of smaller message (RPCs) over many streams and may not necessarily be optimized for sending large, multi gigabyte or lager messages over a single stream.
-GRPC also isn't just one implementation so a real test would test various implementations.
+We also know that GRPC isn't just a single implementation so testing multiple implements might be useful or interesting.
+
+## Methodology
+
+For each implementation tested, a GRPC server and client were written implementing a single GRPC Service with a single, streaming RPC:
+
+```
+service DataService {
+  rpc GiveMeData (DataRequest) returns (stream DataResponse) {}
+}
+```
+
+For each implementation, before the server starts accepting requests, it pre-allocates a single data structure containing a bytes-like object full of random 64-bit integers. When the client executes the single streaming RPC, it reads from the stream, discarding the result, until the stream is exhausted.
+
+Under each implementation, payload sizes of 512 MiB, 1 GiB, and 10 GiB were tested tested and the tests were run with TLS disabled, client-only TLS, and mutual TLS (mTLS). For each combination of payload size and TLS configuration, the average of ten runs were taken to calculate average throughput.
 
 ## Implementations
 
@@ -57,6 +65,14 @@ w/o TLS, 1GiB test size
 
 - `python server --port 5000 --size 1073741824`
 - `python client.py --address localhost:5000`
+
+w/ TLS, 1GiB test size
+
+TODO
+
+w/ mTLS, 1GiB test size
+
+TODO
 
 #### Go GRPC
 
