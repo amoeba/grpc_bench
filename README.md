@@ -39,10 +39,14 @@ Under each implementation, payload sizes of 512 MiB, 1 GiB, and 10 GiB were test
 
 ## Implementations
 
-- [ ] Python (wraps C++)
-  - [x] No TLS
+- [] C++
+  - [] No TLS
   - [] TLS
   - [] mTLS
+- [x] Python (wraps C++)
+  - [x] No TLS
+  - [x] TLS
+  - [x] mTLS
 - [x] Go
     - [x] No TLS
     - [x] TLS
@@ -77,16 +81,18 @@ Under each implementation, payload sizes of 512 MiB, 1 GiB, and 10 GiB were test
 
 w/o TLS, 1GiB test size
 
-- `python server --port 5000 --size 1073741824`
+- `python server.py --port 5000 --size 1073741824`
 - `python client.py --address localhost:5000`
 
 w/ TLS, 1GiB test size
 
-TODO
+- `python server.py --port 5000 --size 1073741824 --tls`
+- `python client.py --address localhost:5000 --tls`
 
 w/ mTLS, 1GiB test size
 
-TODO
+- `python server.py --port 5000 --size 1073741824 --tls`
+- `python client.py --address localhost:5000 --tls`
 
 #### Go GRPC
 
@@ -120,11 +126,11 @@ Tests were run with the followingn settings:
 - Throughput was calculated as the average of 10 RPCs
 
 
-| Implementation | No TLS    | TLS       | mTLS       | Payload Size |
-|----------------|-----------|-----------|------------|--------------|
-| Go             | 3.4 GiB/s | 1.7 GiB/s | 1.6  GiB/s | 512 MiB      |
-| Go             | 3.0 GiB/s | 1.7 GiB/s | 1.7  GiB/s | 1 GiB        |
-| Go             | 2.7 GiB/s | 1.6 GiB/s | 1.5  GiB/s | 10 GiB       |
-| Python         | 1.4 GiB/s | x         | x          | 512 MiB      |
-| Python         | 1.4 GiB/s | x         | x          | 1 GiB        |
-| Python         | 1.3       | x         | x          | 10 GiB       |
+| Implementation | No TLS    | TLS       | mTLS      | Payload Size |
+|----------------|-----------|-----------|-----------|--------------|
+| Go             | 3.4 GiB/s | 1.7 GiB/s | 1.6 GiB/s | 512 MiB      |
+| Go             | 3.0 GiB/s | 1.7 GiB/s | 1.7 GiB/s | 1 GiB        |
+| Go             | 2.7 GiB/s | 1.6 GiB/s | 1.5 GiB/s | 10 GiB       |
+| Python         | 1.4 GiB/s | 1.1 GiB/s | 1.1 GiB/s | 512 MiB      |
+| Python         | 1.4 GiB/s | 1.1 GiB/s | 1.1 GiB/s | 1 GiB        |
+| Python         | 1.3 GiB/s | 1.2 GiB/s | 1.1 GiB/s | 10 GiB       |
