@@ -74,7 +74,7 @@ func doStats(samples []float64) float64 {
 func runMainTLS() {
 	log.Println("Running client in TLS mode.")
 
-	creds, err := credentials.NewClientTLSFromFile("../tls/ca_cert.pem", "x.test.example.com")
+	creds, err := credentials.NewClientTLSFromFile("../tls/ca_cert.pem", "localhost")
 
 	if err != nil {
 		log.Fatalf("failed to load credentials: %v", err)
@@ -123,7 +123,7 @@ func runMainMTLS() {
 	}
 
 	tlsConfig := &tls.Config{
-		ServerName:   "x.test.example.com",
+		ServerName:   "localhost",
 		Certificates: []tls.Certificate{cert},
 		RootCAs:      ca,
 	}
