@@ -40,7 +40,7 @@ Under each implementation, payload sizes of 512 MiB, 1 GiB, and 10 GiB were test
 ## Implementations
 
 - [] C++
-  - [] No TLS
+  - [x] No TLS
   - [] TLS
   - [] mTLS
 - [x] Python (wraps C++)
@@ -72,9 +72,23 @@ Under each implementation, payload sizes of 512 MiB, 1 GiB, and 10 GiB were test
 
 ### Running
 
+#### C++ GRPC
+
+0. Install pre-requisities system-wide
+  - C++ compiler toolchain, cmake, GRPC, Protobuf, Abseil
+1. cd into `./cpp-grpc`
+2. `mkdir build && cd build`
+3. `cmake ..`
+4. `make -j8`
+
+w/o TLS, 1GiB test size
+
+- `./server --size 1073741824`
+- `./client`
+
 #### Python GRPC
 
-1. cd into `./python`
+1. cd into `./python-grpc`
 2. Create a virtualenv: `python -m venv .venv` an activate it
 3. Install dependencies: `python -m pip install -r requirements.txt`
 
@@ -134,3 +148,6 @@ Tests were run with the followingn settings:
 | Python         | 1.4 GiB/s | 1.1 GiB/s | 1.1 GiB/s | 512 MiB      |
 | Python         | 1.4 GiB/s | 1.1 GiB/s | 1.1 GiB/s | 1 GiB        |
 | Python         | 1.3 GiB/s | 1.2 GiB/s | 1.1 GiB/s | 10 GiB       |
+| C++            | 3.5 GiB/s |           |           | 512 MiB      |
+| C++            | 3.4 GiB/s |           |           | 1 GiB        |
+| C++            | 2.6 GiB/s |           |           | 10 GiB       |

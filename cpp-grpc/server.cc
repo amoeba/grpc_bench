@@ -12,12 +12,13 @@
 #include <grpcpp/ext/proto_server_reflection_plugin.h>
 #include <grpcpp/grpcpp.h>
 #include <grpcpp/health_check_service_interface.h>
+#include <vector>
 
 #include "build/dataservice.grpc.pb.h"
 #include "build/dataservice.pb.h"
 
 ABSL_FLAG(uint16_t, port, 5000, "Server port for the service");
-ABSL_FLAG(uint64_t, size, 1024, "Number of bytes to test with");
+ABSL_FLAG(double, size, 1024, "Number of bytes to test with");
 
 #define CHUNKS_SIZE 4 * 1000 * 1000
 
@@ -30,22 +31,22 @@ public:
     GenerateData(s);
   }
 
-  void GenerateData(uint64_t size) {
+  void GenerateData(double size) {
     std::cout << "Generating data..." << std::endl;
 
-    int response_size = size;
-    char *response_payload = new char[response_size];
+    std::vector<char> payload = std::vector<char>();
+    payload.reserve(size);
 
     // Temporary code: Just initialize the array with the alphabet
     // TODO: Make this random
-    for (int i = 0; i < response_size - 2; i++) {
-      response_payload[i] = 'a' + (i % 26);
+    for (double i = 0; i < payload.size() - 2; i++) {
+      payload.push_back('a');
     }
-    response_payload[response_size - 1] = '\0';
+    payload.push_back('\0');
 
-    this->data = std::string(response_payload, response_size - 1);
+    std::cout << "done generating data..." << std::endl;
 
-    delete[] response_payload;
+    this->data = std::string(payload.cbegin(), payload.cend());
 
     std::cout << "...Done." << std::endl;
   }
