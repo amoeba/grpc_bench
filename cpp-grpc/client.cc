@@ -1,5 +1,6 @@
 // Adapted from https://github.com/grpc/grpc/tree/master/examples/cpp/helloworld
 
+#include <chrono>
 #include <iostream>
 #include <memory>
 #include <string>
@@ -13,13 +14,16 @@
 #include "build/dataservice.pb.h"
 
 ABSL_FLAG(std::string, target, "localhost:5000", "Server address");
+ABSL_FLAG(int, ntimes, 10, "Number of times to run the test");
 
 class DataServiceClient {
 public:
   DataServiceClient(std::shared_ptr<grpc::Channel> channel)
       : stub_(grpc_bench::DataService::NewStub(channel)) {}
 
-  void GiveMeData() {
+  uint64_t GiveMeData() {
+    uint64_t total_bytes_read = 0;
+
     grpc_bench::DataRequest request;
     grpc_bench::DataResponse reply;
     grpc::ClientContext context;
@@ -28,25 +32,43 @@ public:
         stub_->GiveMeData(&context, request));
 
     while (reader->Read(&reply)) {
-      // TODO: We can get the read size and the data out here?
-      std::cout << "Read..." << std::endl;
-      std::cout << "reply.data() is : `" << reply.data() << "`" << std::endl;
+      total_bytes_read += reply.data().size();
     }
 
     grpc::Status status = reader->Finish();
 
     if (!status.ok()) {
-      std::cout << "Status was NOT okay:" << status.error_message()
+      std::cout << "Status was NOT okay:" << status.error_message() << " "
                 << std::endl;
 
-    } else {
-      std::cout << "Status WAS okay. Done." << std::endl;
+      return -1;
     }
+
+    return total_bytes_read;
   }
 
 private:
   std::unique_ptr<grpc_bench::DataService::Stub> stub_;
 };
+
+void RunMain(DataServiceClient &client) {
+  auto start = std::chrono::high_resolution_clock::now();
+  auto bytes_read = client.GiveMeData();
+
+  if (bytes_read < 0) {
+    std::cout << "Encountered an unexpected error when calling RPC. Exiting."
+              << std::endl;
+    return;
+  }
+
+  auto end = std::chrono::high_resolution_clock::now();
+  std::chrono::duration<double> duration = end - start;
+
+  std::cout << (((double)bytes_read / 1024 / 1024 / 1024) / duration.count())
+            << " GB/s" << std::endl;
+
+  return;
+}
 
 int main(int argc, char **argv) {
   absl::ParseCommandLine(argc, argv);
@@ -54,9 +76,9 @@ int main(int argc, char **argv) {
   DataServiceClient client(
       grpc::CreateChannel(target_str, grpc::InsecureChannelCredentials()));
 
-  client.GiveMeData();
-
-  std::cout << "Done received: " << std::endl;
+  for (int i = 0; i < absl::GetFlag(FLAGS_ntimes); i++) {
+    RunMain(client);
+  }
 
   return 0;
 }
