@@ -1,3 +1,5 @@
 **/dataservice
 tls/*.pem
 python/dataservice/
+cpp-grpc/build
+cpp-grpc/.cache
