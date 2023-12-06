@@ -19,8 +19,7 @@
 ABSL_FLAG(uint16_t, port, 5000, "Server port for the service");
 ABSL_FLAG(uint64_t, size, 1024, "Number of bytes to test with");
 
-// #define CHUNKS_SIZE 4 * 1000 * 1000
-#define CHUNKS_SIZE 1024
+#define CHUNKS_SIZE 4 * 1000 * 1000
 
 class DataServiceImpl final : public grpc_bench::DataService::Service {
 public:
