@@ -74,7 +74,7 @@ Under each implementation, payload sizes of 512 MiB, 1 GiB, and 10 GiB were test
 
 #### C++ GRPC
 
-0. Install pre-requisities system-wide
+0. Install pre-requisites system-wide
   - C++ compiler toolchain, cmake, GRPC, Protobuf, Abseil
 1. cd into `./cpp-grpc`
 2. `mkdir build && cd build`
@@ -138,7 +138,7 @@ w/ mTLS, 1 GiB test size
 
 ### Results
 
-Tests were run with the followingn settings:
+Tests were run with the following settings:
 
 - Client and server both connecting over localhost
 - GRPC's chunk size was left near its default of 4 MiB for all tests
