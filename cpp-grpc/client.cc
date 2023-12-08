@@ -1,20 +1,24 @@
 // Adapted from https://github.com/grpc/grpc/tree/master/examples/cpp/helloworld
 
+#include "absl/flags/flag.h"
+#include "absl/flags/parse.h"
 #include <chrono>
+#include <fstream>
 #include <iostream>
 #include <memory>
 #include <string>
 
-#include "absl/flags/flag.h"
-#include "absl/flags/parse.h"
-
-#include <grpcpp/grpcpp.h>
-
 #include "build/dataservice.grpc.pb.h"
 #include "build/dataservice.pb.h"
+#include <grpcpp/grpcpp.h>
+#include <grpcpp/security/credentials.h>
+
+#include "common.h"
 
 ABSL_FLAG(std::string, target, "localhost:5000", "Server address");
 ABSL_FLAG(int, ntimes, 10, "Number of times to run the test");
+ABSL_FLAG(bool, tls, false, "Whether to enable TLS");
+ABSL_FLAG(bool, mtls, false, "Whether to enable mTLS");
 
 class DataServiceClient {
 public:
@@ -70,24 +74,26 @@ double RunMain(DataServiceClient &client) {
   return throughput;
 }
 
-double mean(double *values, int n) {
-  double sum = 0;
+DataServiceClient getClientTLS() {
+  std::string target_str = absl::GetFlag(FLAGS_target);
+  auto creds = grpc::SslCredentialsOptions();
+  creds.pem_root_certs = read_file("../../tls/ca_cert.pem");
+  auto channel = grpc::CreateChannel(target_str, grpc::SslCredentials(creds));
+  DataServiceClient client(channel);
 
-  for (int i = 0; i < n; i++) {
-    sum += values[i];
-  }
-
-  return sum / (double)n;
+  return client;
 }
 
-int main(int argc, char **argv) {
-  absl::ParseCommandLine(argc, argv);
+DataServiceClient getClient() {
   std::string target_str = absl::GetFlag(FLAGS_target);
-  int ntimes = absl::GetFlag(FLAGS_ntimes);
 
   DataServiceClient client(
       grpc::CreateChannel(target_str, grpc::InsecureChannelCredentials()));
 
+  return client;
+}
+
+void Benchmark(DataServiceClient client, int ntimes) {
   double values[ntimes];
 
   for (int i = 0; i < ntimes; i++) {
@@ -96,6 +102,17 @@ int main(int argc, char **argv) {
 
   std::cout << "Average throughput: " << mean(values, ntimes) << " GB/s"
             << std::endl;
+}
+
+int main(int argc, char **argv) {
+  absl::ParseCommandLine(argc, argv);
+  int ntimes = absl::GetFlag(FLAGS_ntimes);
+
+  if (absl::GetFlag(FLAGS_tls)) {
+    Benchmark(getClientTLS(), ntimes);
+  } else {
+    Benchmark(getClient(), ntimes);
+  }
 
   return 0;
 }

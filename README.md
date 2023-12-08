@@ -41,7 +41,7 @@ Under each implementation, payload sizes of 512 MiB, 1 GiB, and 10 GiB were test
 
 - [] C++
   - [x] No TLS
-  - [] TLS
+  - [x] TLS
   - [] mTLS
 - [x] Python (wraps C++)
   - [x] No TLS
@@ -85,6 +85,11 @@ w/o TLS, 1GiB test size
 
 - `./server --size 1073741824`
 - `./client`
+
+w/ TLS, 1GiB test size
+
+- `./server --size 1073741824 --tls`
+- `./client --tls`
 
 #### Python GRPC
 
@@ -148,6 +153,6 @@ Tests were run with the followingn settings:
 | Python         | 1.4 GiB/s | 1.1 GiB/s | 1.1 GiB/s | 512 MiB      |
 | Python         | 1.4 GiB/s | 1.1 GiB/s | 1.1 GiB/s | 1 GiB        |
 | Python         | 1.3 GiB/s | 1.2 GiB/s | 1.1 GiB/s | 10 GiB       |
-| C++            | 3.5 GiB/s |           |           | 512 MiB      |
-| C++            | 3.4 GiB/s |           |           | 1 GiB        |
-| C++            | 2.6 GiB/s |           |           | 10 GiB       |
+| C++            | 3.5 GiB/s | 1.4 GiB/s |           | 512 MiB      |
+| C++            | 3.4 GiB/s | 1.4 GiB/s |           | 1 GiB        |
+| C++            | 2.6 GiB/s | 1.2GiB/s  |           | 10 GiB       |

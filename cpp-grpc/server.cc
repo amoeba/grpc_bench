@@ -1,13 +1,16 @@
 // Adapted from https://github.com/grpc/grpc/tree/master/examples/cpp/helloworld
 
-#include <iostream>
-#include <memory>
-#include <string>
-#include <string_view>
-
 #include "absl/flags/flag.h"
 #include "absl/flags/parse.h"
 #include "absl/strings/str_format.h"
+#include <_types/_uint16_t.h>
+#include <filesystem>
+#include <fstream>
+#include <iostream>
+
+#include <memory>
+#include <string>
+#include <string_view>
 
 #include <grpcpp/ext/proto_server_reflection_plugin.h>
 #include <grpcpp/grpcpp.h>
@@ -17,8 +20,12 @@
 #include "build/dataservice.grpc.pb.h"
 #include "build/dataservice.pb.h"
 
+#include "common.h"
+
 ABSL_FLAG(uint16_t, port, 5000, "Server port for the service");
 ABSL_FLAG(double, size, 1024, "Number of bytes to test with");
+ABSL_FLAG(bool, tls, false, "Whether to enable TLS");
+ABSL_FLAG(bool, mtls, false, "Whether to enable mTLS");
 
 #define CHUNKS_SIZE 4 * 1000 * 1000
 
@@ -39,7 +46,7 @@ public:
 
     // Temporary code: Just initialize the array with the alphabet
     // TODO: Make this random
-    for (double i = 0; i < payload.size() - 2; i++) {
+    for (double i = 0; i < payload.capacity() - 2; i++) {
       payload.push_back('a');
     }
     payload.push_back('\0');
@@ -87,6 +94,37 @@ private:
   std::string data;
 };
 
+void RunServerTLS(uint16_t port) {
+  std::cout << "RunServerTLS" << std::endl;
+  std::string server_address = absl::StrFormat("0.0.0.0:%d", port);
+  DataServiceImpl service;
+
+  // TLS stuff
+  // TODO: Verify this is canonical
+  grpc::SslServerCredentialsOptions ssl_opts;
+  ssl_opts.pem_root_certs = "";
+  grpc::SslServerCredentialsOptions::PemKeyCertPair keypair = {
+      read_file("../../tls/server_key.pem"),
+      read_file("../../tls/server_cert.pem")};
+  ssl_opts.pem_key_cert_pairs.push_back(keypair);
+  auto server_creds = SslServerCredentials(ssl_opts);
+
+  // Regular Server Stuff
+
+  grpc::EnableDefaultHealthCheckService(true);
+  grpc::reflection::InitProtoReflectionServerBuilderPlugin();
+
+  grpc::ServerBuilder builder;
+  builder.AddListeningPort(server_address, server_creds);
+  builder.RegisterService(&service);
+
+  std::unique_ptr<grpc::Server> server(builder.BuildAndStart());
+
+  std::cout << "Server listening on " << server_address << std::endl;
+
+  server->Wait();
+}
+
 void RunServer(uint16_t port) {
   std::string server_address = absl::StrFormat("0.0.0.0:%d", port);
   DataServiceImpl service;
@@ -107,6 +145,11 @@ void RunServer(uint16_t port) {
 
 int main(int argc, char **argv) {
   absl::ParseCommandLine(argc, argv);
-  RunServer(absl::GetFlag(FLAGS_port));
+  if (absl::GetFlag(FLAGS_tls)) {
+    RunServerTLS(absl::GetFlag(FLAGS_port));
+  } else {
+    RunServer(absl::GetFlag(FLAGS_port));
+  }
+
   return 0;
 }
