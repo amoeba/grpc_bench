@@ -155,4 +155,4 @@ Tests were run with the followingn settings:
 | Python         | 1.3 GiB/s | 1.2 GiB/s | 1.1 GiB/s | 10 GiB       |
 | C++            | 3.5 GiB/s | 1.4 GiB/s |           | 512 MiB      |
 | C++            | 3.4 GiB/s | 1.4 GiB/s |           | 1 GiB        |
-| C++            | 2.6 GiB/s | 1.2GiB/s  |           | 10 GiB       |
+| C++            | 2.6 GiB/s | 1.2 GiB/s |           | 10 GiB       |
