@@ -24,6 +24,20 @@ service DataService {
 For each implementation, before the server starts accepting requests, it pre-allocates a single data structure containing a bytes-like object full of data.
 In each language, this roughly looks like:
 
+```cpp
+int size = 10;
+
+std::vector<char> payload = std::vector<char>();
+payload.reserve(size);
+
+for (double i = 0; i < payload.capacity() - 2; i++) {
+  payload.push_back('a');
+}
+payload.push_back('\0');
+
+std::string payload = std::string(payload.cbegin(), payload.cend());
+```
+
 ```python
 payload = np.random.randint(0, length, length, dtype=np.dtype(np.int64)).tobytes()
 ```
