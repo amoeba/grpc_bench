@@ -18,13 +18,11 @@
 ABSL_FLAG(std::string, target, "localhost:5000", "Server address");
 ABSL_FLAG(int, ntimes, 10, "Number of times to run the test");
 ABSL_FLAG(bool, tls, false, "Whether to enable TLS");
-ABSL_FLAG(bool, mtls, false, "Whether to enable mTLS");
 
 class DataServiceClient {
 public:
   DataServiceClient(std::shared_ptr<grpc::Channel> channel)
       : stub_(grpc_bench::DataService::NewStub(channel)) {}
-
   uint64_t GiveMeData() {
     uint64_t total_bytes_read = 0;
 
@@ -53,6 +51,7 @@ public:
 
 private:
   std::unique_ptr<grpc_bench::DataService::Stub> stub_;
+  std::shared_ptr<grpc::ChannelCredentials> creds;
 };
 
 double RunMain(DataServiceClient &client) {
@@ -76,9 +75,13 @@ double RunMain(DataServiceClient &client) {
 
 DataServiceClient getClientTLS() {
   std::string target_str = absl::GetFlag(FLAGS_target);
-  auto creds = grpc::SslCredentialsOptions();
-  creds.pem_root_certs = read_file("../../tls/ca_cert.pem");
-  auto channel = grpc::CreateChannel(target_str, grpc::SslCredentials(creds));
+
+  auto ssl_opts = grpc::SslCredentialsOptions();
+  ssl_opts.pem_root_certs = read_file("../../tls/ca_cert.pem");
+
+  auto channel_creds = grpc::SslCredentials(ssl_opts);
+
+  auto channel = grpc::CreateChannel(target_str, channel_creds);
   DataServiceClient client(channel);
 
   return client;

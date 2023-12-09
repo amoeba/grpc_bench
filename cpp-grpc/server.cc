@@ -25,7 +25,6 @@
 ABSL_FLAG(uint16_t, port, 5000, "Server port for the service");
 ABSL_FLAG(double, size, 1024, "Number of bytes to test with");
 ABSL_FLAG(bool, tls, false, "Whether to enable TLS");
-ABSL_FLAG(bool, mtls, false, "Whether to enable mTLS");
 
 #define CHUNKS_SIZE 4 * 1000 * 1000
 
@@ -100,7 +99,6 @@ void RunServerTLS(uint16_t port) {
   DataServiceImpl service;
 
   // TLS stuff
-  // TODO: Verify this is canonical
   grpc::SslServerCredentialsOptions ssl_opts;
   ssl_opts.pem_root_certs = "";
   grpc::SslServerCredentialsOptions::PemKeyCertPair keypair = {
@@ -145,6 +143,7 @@ void RunServer(uint16_t port) {
 
 int main(int argc, char **argv) {
   absl::ParseCommandLine(argc, argv);
+
   if (absl::GetFlag(FLAGS_tls)) {
     RunServerTLS(absl::GetFlag(FLAGS_port));
   } else {
