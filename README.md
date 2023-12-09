@@ -56,7 +56,6 @@ Under each implementation, payload sizes of 512 MiB, 1 GiB, and 10 GiB were test
 - [] C++
   - [x] No TLS
   - [x] TLS
-  - [] mTLS
 - [x] Python (wraps C++)
   - [x] No TLS
   - [x] TLS
@@ -167,6 +166,8 @@ Tests were run with the following settings:
 | Python         | 1.4 GiB/s | 1.1 GiB/s | 1.1 GiB/s | 512 MiB      |
 | Python         | 1.4 GiB/s | 1.1 GiB/s | 1.1 GiB/s | 1 GiB        |
 | Python         | 1.3 GiB/s | 1.2 GiB/s | 1.1 GiB/s | 10 GiB       |
-| C++            | 3.5 GiB/s | 1.4 GiB/s |           | 512 MiB      |
-| C++            | 3.4 GiB/s | 1.4 GiB/s |           | 1 GiB        |
-| C++            | 2.6 GiB/s | 1.2 GiB/s |           | 10 GiB       |
+| C++            | 3.5 GiB/s | 1.4 GiB/s | n/a *     | 512 MiB      |
+| C++            | 3.4 GiB/s | 1.5 GiB/s | n/a *     | 1 GiB        |
+| C++            | 3.0 GiB/s | 1.4 GiB/s | n/a *     | 10 GiB       |
+
+- `*`: I didn't find a ready example of mTLS in GRPC C++ so I didn't implement it.
