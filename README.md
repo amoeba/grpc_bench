@@ -169,5 +169,8 @@ Tests were run with the following settings:
 | C++            | 3.5 GiB/s | 1.4 GiB/s | n/a *     | 512 MiB      |
 | C++            | 3.4 GiB/s | 1.5 GiB/s | n/a *     | 1 GiB        |
 | C++            | 3.0 GiB/s | 1.4 GiB/s | n/a *     | 10 GiB       |
+| PyArrow Flight | 3.0 GiB/s | 1.4 GiB/s | n/a       | 512 MiB      |
+| PyArrow Flight | 2.9 GiB/s | 1.3 GiB/s | n/a       | 1 GiB        |
+| PyArrow Flight | 2.8 GiB/s | 1.1 GiB/s | n/a       | 10 GiB       |
 
 - `*`: I didn't find a ready example of mTLS in GRPC C++ so I didn't implement it.
