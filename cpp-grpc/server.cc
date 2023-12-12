@@ -3,7 +3,6 @@
 #include "absl/flags/flag.h"
 #include "absl/flags/parse.h"
 #include "absl/strings/str_format.h"
-#include <_types/_uint16_t.h>
 #include <filesystem>
 #include <fstream>
 #include <iostream>
