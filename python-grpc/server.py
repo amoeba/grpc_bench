@@ -1,7 +1,5 @@
 import asyncio
-import logging
 import argparse
-import os
 
 import numpy as np
 import grpc
@@ -33,7 +31,7 @@ class Greeter(dataservice.dataservice_pb2_grpc.DataServiceServicer):
         print(f"Creating payload of {self.payload_length} bytes")
         # Divide by eight to account for 64-bit ints
         self.payload = gen_random(int(self.payload_length / 8)).tobytes()
-        print("Done")
+        print("Done creating payload.")
 
     async def GiveMeData(
         self, request, context
