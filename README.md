@@ -58,7 +58,7 @@ Under each implementation, payload sizes of 512 MiB, 1 GiB, and 10 GiB were test
 - [x] C++
   - [x] No TLS
   - [x] TLS
-- [x] Python (wraps C++)
+- [x] Python
   - [x] No TLS
   - [x] TLS
   - [x] mTLS
