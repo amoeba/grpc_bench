@@ -1,17 +1,19 @@
 # grpc_bench
 
-Runnable tests of GRPC single stream throughput performance.
+Runnable tests of GRPC and Arrow Flight single stream throughput performance.
 
 ## Background
 
-The basic question that lead to this repo was: How fast can GRPC send data and does TLS have an impact?
+The basic question that lead to this repo was: How fast can we send send Arrow Flight data over the network and does TLS have any impact?
 
 GRPC was designed for sending lots of smaller message (RPCs) over many streams and may not necessarily be optimized for sending large, multi gigabyte or lager messages over a single stream.
 We also know that GRPC isn't just a single implementation so testing multiple implements might be useful or interesting.
 
 ## Methodology
 
-For each implementation tested, a GRPC server and client were written implementing a single GRPC Service with a single, streaming RPC:
+Tests were performed for Arrow Flight sending a single large (>100MB) Table and for GRPC sending a large (>100MB) byte array.
+
+For the GRPC tests, a server and client were written from scratch in each language which implemented a single GRPC Service with a single streaming RPC:
 
 ```
 service DataService {
@@ -21,7 +23,7 @@ service DataService {
 
 ### Payload
 
-For each implementation, before the server starts accepting requests, it pre-allocates a single data structure containing a bytes-like object full of data.
+For each implementation, the server pre-allocates a single data structure containing a bytes-like object full of data.
 In each language, this roughly looks like:
 
 ```cpp
@@ -31,7 +33,7 @@ std::vector<char> payload = std::vector<char>();
 payload.reserve(size);
 
 for (double i = 0; i < payload.capacity() - 2; i++) {
-  payload.push_back('a');
+  payload.push_back('a'); // Not random but it seems to do the trick
 }
 payload.push_back('\0');
 
@@ -53,7 +55,7 @@ Under each implementation, payload sizes of 512 MiB, 1 GiB, and 10 GiB were test
 
 ## Implementations
 
-- [] C++
+- [x] C++
   - [x] No TLS
   - [x] TLS
 - [x] Python (wraps C++)
@@ -158,19 +160,22 @@ Tests were run with the following settings:
 - Throughput was calculated as the average of 10 RPCs
 
 
-| Implementation | No TLS    | TLS       | mTLS      | Payload Size |
-|----------------|-----------|-----------|-----------|--------------|
-| Go             | 3.4 GiB/s | 1.7 GiB/s | 1.6 GiB/s | 512 MiB      |
-| Go             | 3.0 GiB/s | 1.7 GiB/s | 1.7 GiB/s | 1 GiB        |
-| Go             | 2.7 GiB/s | 1.6 GiB/s | 1.5 GiB/s | 10 GiB       |
-| Python         | 1.4 GiB/s | 1.1 GiB/s | 1.1 GiB/s | 512 MiB      |
-| Python         | 1.4 GiB/s | 1.1 GiB/s | 1.1 GiB/s | 1 GiB        |
-| Python         | 1.3 GiB/s | 1.2 GiB/s | 1.1 GiB/s | 10 GiB       |
-| C++            | 3.5 GiB/s | 1.4 GiB/s | n/a *     | 512 MiB      |
-| C++            | 3.4 GiB/s | 1.5 GiB/s | n/a *     | 1 GiB        |
-| C++            | 3.0 GiB/s | 1.4 GiB/s | n/a *     | 10 GiB       |
-| PyArrow Flight | 3.0 GiB/s | 1.4 GiB/s | n/a       | 512 MiB      |
-| PyArrow Flight | 2.9 GiB/s | 1.3 GiB/s | n/a       | 1 GiB        |
-| PyArrow Flight | 2.8 GiB/s | 1.1 GiB/s | n/a       | 10 GiB       |
+| Method | Language | No TLS    | TLS       | mTLS      | Payload Size |
+|--------|----------|-----------|-----------|-----------|--------------|
+| GRPC   | Go       | 3.4 GiB/s | 1.7 GiB/s | 1.6 GiB/s | 512 MiB      |
+| GRPC   | Go       | 3.0 GiB/s | 1.7 GiB/s | 1.7 GiB/s | 1 GiB        |
+| GRPC   | Go       | 2.7 GiB/s | 1.6 GiB/s | 1.5 GiB/s | 10 GiB       |
+| GRPC   | Python   | 1.4 GiB/s | 1.1 GiB/s | 1.1 GiB/s | 512 MiB      |
+| GRPC   | Python   | 1.4 GiB/s | 1.1 GiB/s | 1.1 GiB/s | 1 GiB        |
+| GRPC   | Python   | 1.3 GiB/s | 1.2 GiB/s | 1.1 GiB/s | 10 GiB       |
+| GRPC   | C++      | 3.5 GiB/s | 1.4 GiB/s | n/a *     | 512 MiB      |
+| GRPC   | C++      | 3.4 GiB/s | 1.5 GiB/s | n/a *     | 1 GiB        |
+| GRPC   | C++      | 3.0 GiB/s | 1.4 GiB/s | n/a *     | 10 GiB       |
+| Flight | C++      | x.x       | x.x       | x.x       | 512 MiB      |
+| Flight | C++      | x.x       | x.x       | x.x       | 1 GiB        |
+| Flight | C++      | x.x       | x.x       | x.x       | 10 GiB       |
+| Flight | Python   | 3.0 GiB/s | 1.4 GiB/s | n/a       | 512 MiB      |
+| Flight | Python   | 2.9 GiB/s | 1.3 GiB/s | n/a       | 1 GiB        |
+| Flight | Python   | 2.8 GiB/s | 1.1 GiB/s | n/a       | 10 GiB       |
 
 - `*`: I didn't find a ready example of mTLS in GRPC C++ so I didn't implement it.
