@@ -77,7 +77,9 @@ public:
         read_to = position + CHUNKS_SIZE;
       }
 
-      response.set_data(data_view.substr(position, read_to - position));
+      auto chunk = data_view.substr(position, read_to - position);
+      response.set_data(chunk.data(), chunk.size());
+
       position += CHUNKS_SIZE;
 
       if (!writer->Write(response)) {
@@ -89,6 +91,7 @@ public:
   }
 
 private:
+  // Because https://protobuf.dev/reference/cpp/cpp-generated/#string
   std::string data;
 };
 
