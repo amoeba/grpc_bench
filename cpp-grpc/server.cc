@@ -1,20 +1,19 @@
 // Adapted from https://github.com/grpc/grpc/tree/master/examples/cpp/helloworld
-
-#include "absl/flags/flag.h"
-#include "absl/flags/parse.h"
-#include "absl/strings/str_format.h"
 #include <filesystem>
 #include <fstream>
 #include <iostream>
+#include <vector>
 
 #include <memory>
 #include <string>
 #include <string_view>
 
+#include "absl/flags/flag.h"
+#include "absl/flags/parse.h"
+#include "absl/strings/str_format.h"
 #include <grpcpp/ext/proto_server_reflection_plugin.h>
 #include <grpcpp/grpcpp.h>
 #include <grpcpp/health_check_service_interface.h>
-#include <vector>
 
 #include "build/dataservice.grpc.pb.h"
 #include "build/dataservice.pb.h"
