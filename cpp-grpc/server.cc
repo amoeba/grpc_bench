@@ -2,11 +2,12 @@
 #include <filesystem>
 #include <fstream>
 #include <iostream>
-#include <vector>
-
 #include <memory>
+#include <signal.h>
+#include <stdio.h>
 #include <string>
-#include <string_view>
+
+#include <thread>
 
 #include "absl/flags/flag.h"
 #include "absl/flags/parse.h"
@@ -25,6 +26,8 @@ ABSL_FLAG(double, size, 1024, "Number of bytes to test with");
 ABSL_FLAG(bool, tls, false, "Whether to enable TLS");
 
 #define CHUNKS_SIZE 4 * 1000 * 1000
+
+std::shared_ptr<grpc::Server> serverInstance = nullptr;
 
 class DataServiceImpl final : public grpc_bench::DataService::Service {
 public:
@@ -108,16 +111,12 @@ void RunServerTLS(uint16_t port) {
   ssl_opts.pem_key_cert_pairs.push_back(keypair);
   auto server_creds = SslServerCredentials(ssl_opts);
 
-  // Regular Server Stuff
-
-  grpc::EnableDefaultHealthCheckService(true);
-  grpc::reflection::InitProtoReflectionServerBuilderPlugin();
-
   grpc::ServerBuilder builder;
   builder.AddListeningPort(server_address, server_creds);
   builder.RegisterService(&service);
+  std::shared_ptr<grpc::Server> server(builder.BuildAndStart());
 
-  std::unique_ptr<grpc::Server> server(builder.BuildAndStart());
+  serverInstance = server;
 
   std::cout << "Server listening on " << server_address << std::endl;
 
@@ -128,21 +127,34 @@ void RunServer(uint16_t port) {
   std::string server_address = absl::StrFormat("0.0.0.0:%d", port);
   DataServiceImpl service;
 
-  grpc::EnableDefaultHealthCheckService(true);
-  grpc::reflection::InitProtoReflectionServerBuilderPlugin();
-
   grpc::ServerBuilder builder;
   builder.AddListeningPort(server_address, grpc::InsecureServerCredentials());
   builder.RegisterService(&service);
+  std::shared_ptr<grpc::Server> server(builder.BuildAndStart());
 
-  std::unique_ptr<grpc::Server> server(builder.BuildAndStart());
+  serverInstance = server;
 
   std::cout << "Server listening on " << server_address << std::endl;
 
   server->Wait();
 }
 
+void sig_handler(int signal) {
+  std::cout << "Signal caught. Initiating shutdown..." << std::endl;
+
+  if (serverInstance == nullptr) {
+    abort();
+  }
+
+  std::thread t([] { serverInstance->Shutdown(); });
+  t.join();
+}
+
 int main(int argc, char **argv) {
+  struct sigaction action;
+  action.sa_handler = sig_handler;
+  sigaction(SIGINT, &action, nullptr);
+
   absl::ParseCommandLine(argc, argv);
 
   if (absl::GetFlag(FLAGS_tls)) {
