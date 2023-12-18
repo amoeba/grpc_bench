@@ -1,6 +1,8 @@
 # cpp-grpc
 
-Benchmark for streaming performance of C++ GRPC.
+Benchmark for streaming performance of GRPC C++.
+This codebase produces two executables, a GRPC server and a GRPC client.
+When run, the client makes repeated streaming RPCs to the server and prints throughput numbers to stdout, including an average.
 
 ## Pre-requisites
 
@@ -19,7 +21,7 @@ For example, on a Debian system, you'll need the following packages:
 - openssl
 - protobuf-compiler-grpc
 
-Install with:
+which can be installed by running:
 
 `apt-get install build-essential cmake libgrpc++-dev libprotobuf-dev openssl protobuf-compiler-grpc`
 
@@ -36,8 +38,9 @@ make -j8
 
 ## Running
 
-To run the benchmarks between two hosts in your network
 The server binds 0.0.0.0 on the host it's running on and listens on port 5000 by default.
+
+The following commands run the benchmark with a payload size of 1GiB:
 
 In one terminal, run:
 
