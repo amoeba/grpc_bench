@@ -34,12 +34,13 @@ public:
   DataServiceImpl() {
     auto s = absl::GetFlag(FLAGS_size);
 
-    std::cout << "Initializing service with data size of " << s << std::endl;
+    std::cout << "[1/4] Initializing service with data size of " << s
+              << std::endl;
     GenerateData(s);
   }
 
   void GenerateData(double size) {
-    std::cout << "Generating data..." << std::endl;
+    std::cout << "[2/4] Generating data..." << std::endl;
 
     std::vector<char> payload = std::vector<char>();
     payload.reserve(size);
@@ -51,11 +52,9 @@ public:
     }
     payload.push_back('\0');
 
-    std::cout << "done generating data..." << std::endl;
-
     this->data = std::string(payload.cbegin(), payload.cend());
 
-    std::cout << "...Done." << std::endl;
+    std::cout << "[3/4] Done generating data." << std::endl;
   }
 
   grpc::Status
@@ -118,7 +117,8 @@ void RunServerTLS(uint16_t port) {
 
   serverInstance = server;
 
-  std::cout << "Server listening on " << server_address << std::endl;
+  std::cout << "[4/4] Server listening on " << server_address << "."
+            << std::endl;
 
   server->Wait();
 }
@@ -134,7 +134,8 @@ void RunServer(uint16_t port) {
 
   serverInstance = server;
 
-  std::cout << "Server listening on " << server_address << std::endl;
+  std::cout << "[4/4] Server listening on " << server_address << "."
+            << std::endl;
 
   server->Wait();
 }
