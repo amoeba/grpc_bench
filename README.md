@@ -2,7 +2,7 @@
 
 Runnable tests of GRPC and Arrow Flight single stream throughput performance.
 
-## Background
+## Motivation
 
 The basic question that lead to this repo was: How fast can we send send Arrow Flight data over the network and does TLS have any impact?
 
@@ -11,11 +11,12 @@ We also know that GRPC isn't just a single implementation so testing multiple im
 
 ## Methodology
 
-Tests were performed for Arrow Flight sending a single large (>100MB) Table and for GRPC sending a large (>100MB) byte array.
+- For Flight, sending a single, large (>100MB) Table
+- For GRPC, sending a single, large (>100MB) byte array in a single streaming RPC.
 
 For the GRPC tests, a server and client were written from scratch in each language which implemented a single GRPC Service with a single streaming RPC:
 
-```
+```sh
 service DataService {
   rpc GiveMeData (DataRequest) returns (stream DataResponse) {}
 }
@@ -23,8 +24,12 @@ service DataService {
 
 ### Payload
 
+#### GRPC Benchmarks
+
 For each implementation, the server pre-allocates a single data structure containing a bytes-like object full of data.
 In each language, this roughly looks like:
+
+C++:
 
 ```cpp
 int size = 10;
@@ -40,9 +45,13 @@ payload.push_back('\0');
 std::string payload = std::string(payload.cbegin(), payload.cend());
 ```
 
+Python:
+
 ```python
 payload = np.random.randint(0, length, length, dtype=np.dtype(np.int64)).tobytes()
 ```
+
+Go:
 
 ```go
 payload := make([]byte, length)
@@ -63,21 +72,21 @@ Under each implementation, payload sizes of 512 MiB, 1 GiB, and 10 GiB were test
   - [x] TLS
   - [x] mTLS
 - [x] Go
-    - [x] No TLS
-    - [x] TLS
-    - [x] mTLS
+  - [x] No TLS
+  - [x] TLS
+  - [x] mTLS
 
 ## Running tests
 
 ### Pre-requisites
 
+Generate protobuf code, requires protoc (`protobuf-compiler`), `protoc-gen-go`, `protoc-gen-go-grpc`
 
-    ```
-    # On Debian
-    apt install -y protobuf-compiler protoc-gen-go protoc-gen-go-grpc
-
-    sh scripts/gen_proto.sh
-    ```
+```sh
+# On Debian, adapt otherwise
+apt install -y protobuf-compiler protoc-gen-go protoc-gen-go-grpc
+sh scripts/gen_proto.sh
+```
 
 ### Running
 
@@ -103,7 +112,7 @@ w/ TLS, 1GiB test size
 
 #### Python GRPC
 
-1. cd into `./src/pythn/grpc`
+1. cd into `./src/python/grpc`
 2. Create a virtualenv: `python -m venv .venv` an activate it
 3. Install dependencies: `python -m pip install -r requirements.txt`
 
@@ -152,7 +161,6 @@ Tests were run with the following settings:
 - Client and server both connecting over localhost
 - GRPC's chunk size was left near its default of 4 MiB for all tests
 - Throughput was calculated as the average of 10 RPCs
-
 
 | Method | Language | No TLS    | TLS       | mTLS      | Payload Size |
 |--------|----------|-----------|-----------|-----------|--------------|
