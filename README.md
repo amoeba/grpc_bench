@@ -91,7 +91,8 @@ Under each implementation, payload sizes of 512 MiB, 1 GiB, and 10 GiB were test
 
 0. Install pre-requisites system-wide
   - C++ compiler toolchain, cmake, GRPC, Protobuf, Abseil
-1. cd into `./cpp-grpc`
+
+1. cd into `./src/cpp/grpc`
 2. `mkdir build && cd build`
 3. `cmake ..`
 4. `make -j8`
@@ -108,10 +109,9 @@ w/ TLS, 1GiB test size
 
 #### Python GRPC
 
-1. cd into `./python-grpc`
+1. cd into `./src/pythn/grpc`
 2. Create a virtualenv: `python -m venv .venv` an activate it
 3. Install dependencies: `python -m pip install -r requirements.txt`
-
 
 w/o TLS, 1GiB test size
 
@@ -130,7 +130,7 @@ w/ mTLS, 1GiB test size
 
 #### Go GRPC
 
-This benchmark is located in `./go-grpc`.
+This benchmark is located in `./src/go/grpc`.
 
 This tests a GRPC client streaming a single RPC from the server containing a variable-size payload of bytes.
 

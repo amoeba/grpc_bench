@@ -10,7 +10,7 @@ message(STATUS "Found protoc bin at: ${PROTOC_BIN}")
 find_program(_GRPC_CPP_PLUGIN_EXECUTABLE grpc_cpp_plugin)
 message(STATUS "Found protoc-gen-grpc bin at: ${_GRPC_CPP_PLUGIN_EXECUTABLE}")
 
-get_filename_component(PROTO_PATH "../protos/dataservice/dataservice.proto" ABSOLUTE)
+get_filename_component(PROTO_PATH "../../../protos/dataservice/dataservice.proto" ABSOLUTE)
 get_filename_component(PROTO_DIR "${PROTO_PATH}" PATH)
 
 message(STATUS ${PROTO_PATH})
@@ -22,14 +22,14 @@ set(PROTO_HDRS "${CMAKE_CURRENT_BINARY_DIR}/dataservice.pb.h")
 set(GRPC_SRCS "${CMAKE_CURRENT_BINARY_DIR}/dataservice.grpc.pb.cc")
 set(GRPC_HDRS "${CMAKE_CURRENT_BINARY_DIR}/dataservice.grpc.pb.h")
 add_custom_command(
-      OUTPUT "${PROTO_SRCS}" "${PROTO_HDRS}" "${GRPC_SRCS}" "${GRPC_HDRS}"
-      COMMAND ${PROTOC_BIN}
-      ARGS --grpc_out "${CMAKE_CURRENT_BINARY_DIR}"
-        --cpp_out "${CMAKE_CURRENT_BINARY_DIR}"
-        -I "${PROTO_DIR}"
-        --plugin=protoc-gen-grpc="${_GRPC_CPP_PLUGIN_EXECUTABLE}"
-        "${PROTO_PATH}"
-      DEPENDS "${PROTO_PATH}")
+  OUTPUT "${PROTO_SRCS}" "${PROTO_HDRS}" "${GRPC_SRCS}" "${GRPC_HDRS}"
+  COMMAND ${PROTOC_BIN}
+  ARGS --grpc_out "${CMAKE_CURRENT_BINARY_DIR}"
+  --cpp_out "${CMAKE_CURRENT_BINARY_DIR}"
+  -I "${PROTO_DIR}"
+  --plugin=protoc-gen-grpc="${_GRPC_CPP_PLUGIN_EXECUTABLE}"
+  "${PROTO_PATH}"
+  DEPENDS "${PROTO_PATH}")
 
 include_directories("${CMAKE_CURRENT_BINARY_DIR}")
 

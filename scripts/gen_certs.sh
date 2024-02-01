@@ -3,7 +3,7 @@
 # Copied from https://github.com/grpc/grpc-go, specifically
 # https://github.com/grpc/grpc-go/tree/master/examples/data/x509
 
-cd tls || exit
+cd certs || exit
 
 # Create the server CA certs.
 openssl req -x509                                     \

@@ -106,8 +106,8 @@ void RunServerTLS(uint16_t port) {
   grpc::SslServerCredentialsOptions ssl_opts;
   ssl_opts.pem_root_certs = "";
   grpc::SslServerCredentialsOptions::PemKeyCertPair keypair = {
-      read_file("../../tls/server_key.pem"),
-      read_file("../../tls/server_cert.pem")};
+      read_file("../../../../certs/server_key.pem"),
+      read_file("../../../../certs/server_cert.pem")};
   ssl_opts.pem_key_cert_pairs.push_back(keypair);
   auto server_creds = SslServerCredentials(ssl_opts);
 

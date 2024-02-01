@@ -8,16 +8,15 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     openssl\
     protobuf-compiler-grpc
 
-ADD ./cpp-grpc /work/cpp-grpc
-ADD ./tls /work/tls
-ADD ./protos /work/protos
-ADD ./scripts /work/scripts
-
+ADD . /work
 WORKDIR /work
 
-RUN scripts/gen_certs.sh
+# Generate certs
+RUN ./scripts/gen_certs.sh
 
-RUN mkdir -p ./cpp-grpc/build
-WORKDIR /work/cpp-grpc/build
-RUN cmake .. -DCMAKE_BUILD_TYPE=Release
+# Create build dir
+WORKDIR /work/src/cpp/grpc
+RUN mkdir -p build
+WORKDIR /work/src/cpp/grpc/build
+RUN cmake -DCMAKE_BUILD_TYPE=Release ..
 RUN make

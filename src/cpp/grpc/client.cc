@@ -77,7 +77,7 @@ DataServiceClient getClientTLS() {
   std::string target_str = absl::GetFlag(FLAGS_target);
 
   auto ssl_opts = grpc::SslCredentialsOptions();
-  ssl_opts.pem_root_certs = read_file("../../tls/ca_cert.pem");
+  ssl_opts.pem_root_certs = read_file("../../../../certs/ca_cert.pem");
 
   auto channel_creds = grpc::SslCredentials(ssl_opts);
 
