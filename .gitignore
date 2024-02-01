@@ -1,4 +1,3 @@
 **/dataservice
-certs/*.pem
 **/build
 **/.cache

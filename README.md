@@ -71,12 +71,6 @@ Under each implementation, payload sizes of 512 MiB, 1 GiB, and 10 GiB were test
 
 ### Pre-requisites
 
-- Generate TLS certs, CA, requires OpenSSL
-
-    ```sh
-    sh scripts/gen_certs.sh
-    ```
-- Generate protobuf code, requires protoc (`protobuf-compiler`), `protoc-gen-go`, `protoc-gen-go-grpc`
 
     ```
     # On Debian
