@@ -1,8 +1,8 @@
-# cpp-grpc
+# src/cpp/grpc
 
 Benchmark for streaming performance of GRPC C++.
 This codebase produces two executables, a GRPC server and a GRPC client.
-When run, the client makes repeated streaming RPCs to the server and prints throughput numbers to stdout, including an average.
+When the server is running and the client is run, the client makes repeated streaming RPCs to the server and prints throughput numbers to stdout and finishes by calculating and printing an average throughput.
 
 ## Pre-requisites
 
