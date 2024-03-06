@@ -127,9 +127,9 @@ def main():
 
     if args.tls:
         # Set up server side of TLS
-        with open("../tls/server_cert.pem", "rb") as cert_file:
+        with open("../../../certs/server_cert.pem", "rb") as cert_file:
             tls_cert_chain = cert_file.read()
-        with open("../tls/server_key.pem", "rb") as key_file:
+        with open("../../../certs/server_key.pem", "rb") as key_file:
             tls_private_key = key_file.read()
 
         tls_certificates.append((tls_cert_chain, tls_private_key))
@@ -137,7 +137,7 @@ def main():
         scheme = "grpc+tls"
 
         # Set up client side of TLS
-        with open("../tls/ca_cert.pem", "rb") as cert:
+        with open("../../../certs/ca_cert.pem", "rb") as cert:
             client_kwargs["tls_root_certs"] = cert.read()
     else:
         scheme = "grpc+tcp"

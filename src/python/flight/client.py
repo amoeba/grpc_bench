@@ -46,7 +46,7 @@ if __name__ == "__main__":
 
     kwargs = {}
 
-    with open("../tls/ca_cert.pem", "rb") as cert:
+    with open("../../../certs/ca_cert.pem", "rb") as cert:
         kwargs["tls_root_certs"] = cert.read()
 
     if args.tls:
